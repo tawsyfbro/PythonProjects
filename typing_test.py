@@ -5,8 +5,9 @@ import random
 
 window = Tk()
 window.title("TYPING TEST")
-window.minsize(width=1500, height=1200)
+window.minsize(width=1500, height=1800)
 window.config(background="light blue")
+
 
 test_text = Canvas(window, width=800, height=300, bg="cyan")
 
@@ -23,16 +24,25 @@ list_of_texts = ["The quick brown fox jumps over the lazy dog. Did you know that
                  "The museum was a treasure trove of art and history, the walls adorned with masterpieces and artifacts. I wandered through the galleries, admiring the beauty and skill of the artists. There were paintings, sculptures, and installations from all eras and genres. I learned about history and culture, gaining a deeper appreciation for the world around me. The museum was a sanctuary of knowledge and inspiration, and I felt grateful to have access to it.",
                  "The cafe was cozy and inviting, the smell of coffee and pastries filling the air. The chatter of customers and the sound of soft music created a warm and welcoming atmosphere. I ordered a cappuccino and a croissant, enjoying the indulgence. I sat at a table, watching the people go by and feeling the stress of the day melt away. The cafe was a sanctuary of comfort and relaxation, and I felt grateful for the opportunity to unwind."]
 
+# choose text from list_of_texts for the typing test.
 chosen_text = random.choice(list_of_texts)
 
-test_text.create_text(
+
+text_item = test_text.create_text(
     400, 150, font=("Arial", "15"), text=chosen_text, width=800, justify="left")
 
 user_input = ""
+result_text = Label(
+    window, padx=5, pady=5)  # displays typing speed and words typed correctly at the end of a session.
+result_text.forget()
+
+# ALL FUNCTIONS
 
 
+# activated when SUBMIT button is clicked. Gives the result of the TYPING TEST.
 def retrieve_input():
-    global user_input, typing_stop, right_words, wrong_words, typing_speed
+
+    global user_input, typing_stop, right_words, wrong_words, typing_speed, result_text
 
     typing_stop = datetime.now()
 
@@ -54,26 +64,26 @@ def retrieve_input():
 
         if demo_text_split[i] != user_input_split[i]:
             wrong_coutner += 1
-            # print(f"{demo_text_split[i]} and {user_input_split[i]}")
+
         else:
             right_counter += 1
-            # print(f"{demo_text_split[i]} and {user_input_split[i]}")
 
     right_words = right_counter
 
     wrong_words = wrong_coutner
     total_seconds_typing = (typing_stop - typing_start).total_seconds()
     print(total_seconds_typing)
+    print(len(demo_text_split))
+    typing_speed = (right_counter+1)/(total_seconds_typing/60)
 
-    typing_speed = right_counter/(total_seconds_typing/60)
+    result_text.configure(
+        text=f"You typed {right_words} correctly, and {wrong_words} incorrectly. \n Your typing speed is {typing_speed} wpm!")
 
-    result_text = Label(
-        window, text=f"You typed {right_words} correctly, and {wrong_words} incorrectly. \n Your typing speed is {typing_speed} wpm!", padx=5, pady=5)
     result_text.config(background="light blue", font=("Arial", "20"))
     result_text.pack()
 
 
-def start_typing():
+def start_typing():  # Activates text box for typing.
 
     global typing_start
 
@@ -82,18 +92,32 @@ def start_typing():
     typing_start = datetime.now()
 
 
+def restart_typing():  # Generates another paragraph for typing and restarts the test.
+    global chosen_text
+    chosen_text = random.choice(list_of_texts)
+    test_text.itemconfig(text_item, text=chosen_text)
+    result_text.configure(text="")
+    input_text.delete('1.0', END)
+    input_text.config(state="disabled")
+
+
+# tkinter GUI widgets
+
 heading_text = Label(window, text="THE TYPING SPEED TEST", padx=5, pady=5)
 heading_text.config(background="light blue", font=("Arial", "35"))
 heading_text.pack()
 
-input_text = Text(window, height=15,
+input_text = Text(window, height=10,
                   width=150,
-                  bg="light yellow", state="disabled")
+                  bg="light yellow", state="disabled", font=("Arial", 15))
 buttonSubmit = Button(window, height=1, width=10, text="Submit",
                       command=lambda: retrieve_input())
 
 buttonStart = Button(window, height=1, width=10, text="Start Typing",
                      command=lambda: start_typing())
+
+buttonRestart = Button(window, height=1, width=10, text="Restart",
+                       command=lambda: restart_typing())
 
 
 spacer = Label(window, text="", padx=5, pady=5)
@@ -108,7 +132,18 @@ spacer = Label(window, text="", padx=10, pady=10)
 spacer.config(background="light blue")
 spacer.pack()
 
+buttonStart.configure(padx=7, pady=7, background="cyan",
+                      font=("Arial", "15", "bold"), fg="black")
 buttonStart.pack()
+
+
+spacer = Label(window, text="", padx=5, pady=5)
+spacer.config(background="light blue")
+spacer.pack()
+
+buttonRestart.configure(padx=3, pady=3, background="cyan",
+                        font=("Arial", "12", "bold"), fg="black")
+buttonRestart.pack()
 
 spacer = Label(window, text="", padx=5, pady=5)
 spacer.config(background="light blue")
@@ -120,6 +155,8 @@ spacer = Label(window, text="", padx=5, pady=5)
 spacer.config(background="light blue")
 spacer.pack()
 
+buttonSubmit.configure(padx=15, pady=15, background="cyan",
+                       font=("Arial", "15", "bold"), fg="black")
 buttonSubmit.pack()
 
 
